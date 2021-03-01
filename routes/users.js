@@ -1,6 +1,6 @@
 var express = require("express");
 var router = express.Router();
-const bcrypt = require("bcrypt");
+// const bcrypt = require("bcrypt");
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const { checkNotAuthenticated } = require("../config/auth");
@@ -22,13 +22,13 @@ passport.use(
 );
 
 // session
-// passport.serializeUser(function (user, done) {
-//   done(null, user);
-// });
+passport.serializeUser(function (user, done) {
+  done(null, user);
+});
 
-// passport.deserializeUser(function (user, done) {
-//   done(null, user);
-// });
+passport.deserializeUser(function (user, done) {
+  done(null, user);
+});
 
 /* GET users listing. */
 
@@ -40,7 +40,7 @@ router.get("/register", checkNotAuthenticated, function (req, res, next) {
 router.post("/register", async function (req, res, next) {
   const { username, password } = req.body;
   try {
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    // const hashedPassword = await bcrypt.hash(req.body.password, 10);
     res.redirect("/users/login");
   } catch {
     res.redirect("/users/register");
