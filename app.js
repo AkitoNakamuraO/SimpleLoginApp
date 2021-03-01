@@ -4,6 +4,7 @@ var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 const passport = require("passport");
+const LocalStrategy = require("passport-local").Strategy;
 const session = require("express-session");
 
 var indexRouter = require("./routes/index");
@@ -21,16 +22,44 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
+passport.use(
+  new LocalStrategy(
+    {
+      usernameField: "username",
+      passwordField: "password",
+    },
+    function (username, password, done) {
+      if (username === "akito" && password === "1111") {
+        return done(null, username);
+      } else {
+        return done(null, false);
+      }
+    }
+  )
+);
+
 app.use(
   session({
     secret: "secret",
-    resave: false,
-    saveUninitialized: false,
+    resave: true,
+    saveUninitialized: true,
     cookie: {
-      maxage: 1,
+      _expires: 1000 * 60 * 1,
     },
   })
 );
+
+// session
+passport.serializeUser(function (user, done) {
+  console.log("Serialize ...");
+  done(null, user);
+});
+
+passport.deserializeUser(function (user, done) {
+  console.log("Deserialize ...");
+  done(null, user);
+});
+
 app.use(passport.initialize());
 app.use(passport.session());
 
