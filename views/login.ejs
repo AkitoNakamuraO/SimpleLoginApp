@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/stylesheets/style.css" />
+  </head>
+  <body>
+    <h1><%= title %></h1>
+    <form action="/users/login" method="POST">
+      <label for="username">username</label>
+      <input id="username" type="text" name="username" />
+      <label for="password">password</label>
+      <input id="password" type="text" name="password" />
+      <button type="submit">login</button>
+      <a href="/users/register">register</a>
+    </form>
+  </body>
+</html>
