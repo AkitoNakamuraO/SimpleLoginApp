@@ -1,6 +1,6 @@
 var express = require("express");
 var router = express.Router();
-// const bcrypt = require("bcrypt");
+const bcrypt = require("bcrypt");
 const passport = require("passport");
 const { checkNotAuthenticated } = require("../config/auth");
 
@@ -14,7 +14,8 @@ router.get("/register", checkNotAuthenticated, function (req, res, next) {
 router.post("/register", async function (req, res, next) {
   const { username, password } = req.body;
   try {
-    // const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
+    console.log(hashedPassword);
     res.redirect("/users/login");
   } catch {
     res.redirect("/users/register");

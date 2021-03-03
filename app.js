@@ -51,12 +51,10 @@ app.use(
 
 // session
 passport.serializeUser(function (user, done) {
-  console.log("Serialize ...");
   done(null, user);
 });
 
 passport.deserializeUser(function (user, done) {
-  console.log("Deserialize ...");
   done(null, user);
 });
 
