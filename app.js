@@ -3,12 +3,15 @@ var express = require("express");
 var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
+const mysql = require("mysql");
+const bcrypt = require("bcryptjs");
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const session = require("express-session");
 
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
+const { toUnicode } = require("punycode");
 
 var app = express();
 
@@ -22,18 +25,41 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
+function selectUser(sql) {
+  return new Promise((resolve) => {
+    const connection = mysql.createConnection({
+      host: "us-cdbr-east-03.cleardb.com",
+      port: 3306,
+      user: "b326b65a6a8a4e",
+      password: "ba9ed138",
+      database: "heroku_ca7a263364fcc5a",
+    });
+    connection.query(sql, function (err, rows, fields) {
+      resolve(rows);
+    });
+  });
+}
+
 passport.use(
   new LocalStrategy(
     {
       usernameField: "username",
       passwordField: "password",
     },
-    function (username, password, done) {
-      if (username === "akito" && password === "1111") {
-        return done(null, username);
-      } else {
-        return done(null, false);
-      }
+    async function (username, password, done) {
+      const sql = "SELECT * FROM users;";
+      const users = await selectUser(sql);
+      users.forEach(async (user) => {
+        if (
+          username === user.name &&
+          (await bcrypt.compare(password, user.password))
+        ) {
+          done(null, username);
+          return true;
+        } else {
+          done(null, false);
+        }
+      });
     }
   )
 );
