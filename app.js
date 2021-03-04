@@ -6,7 +6,6 @@ var logger = require("morgan");
 const mysql = require("mysql");
 const bcrypt = require("bcryptjs");
 const passport = require("passport");
-const LocalStrategy = require("passport-local").Strategy;
 const session = require("express-session");
 
 var indexRouter = require("./routes/index");
@@ -25,42 +24,6 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-function checkUser(sql, username) {
-  return new Promise((resolve) => {
-    const connection = mysql.createConnection({
-      host: "us-cdbr-east-03.cleardb.com",
-      port: 3306,
-      user: "b326b65a6a8a4e",
-      password: "ba9ed138",
-      database: "heroku_ca7a263364fcc5a",
-    });
-    connection.connect();
-    connection.query(sql, username, function (err, rows, fields) {
-      resolve(rows);
-    });
-    connection.end();
-  });
-}
-
-passport.use(
-  new LocalStrategy(
-    {
-      usernameField: "username",
-      passwordField: "password",
-    },
-    async function (username, password, done) {
-      const sql = "SELECT * FROM users WHERE name = ?";
-      const users = await checkUser(sql, username);
-      for (i = 0; i < users.length; i++) {
-        if (await bcrypt.compare(password, users[i].password)) {
-          return done(null, username);
-        }
-      }
-      return done(null, false);
-    }
-  )
-);
-
 app.use(
   session({
     secret: "secret",
@@ -71,18 +34,16 @@ app.use(
     },
   })
 );
+app.use(passport.initialize());
+app.use(passport.session());
 
-// session
+// // session
 passport.serializeUser(function (user, done) {
   done(null, user);
 });
-
 passport.deserializeUser(function (user, done) {
   done(null, user);
 });
-
-app.use(passport.initialize());
-app.use(passport.session());
 
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
