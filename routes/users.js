@@ -77,16 +77,12 @@ router.get("/register", checkNotAuthenticated, function (req, res, next) {
 router.post("/register", async function (req, res, next) {
   const { username, password } = req.body;
   const sql = "INSERT INTO users(name, password) values(?, ?);";
-  try {
-    if (username.length <= 0 || password.length <= 0) {
-      throw new Error("register error");
-    }
-    const hashedPassword = await bcrypt.hash(password, 10);
-    await insertUser(sql, username, hashedPassword);
-    res.redirect("/users/login");
-  } catch {
-    res.redirect("/users/register");
+  if (username.length <= 0 || password.length <= 0) {
+    return res.redirect("/users/register");
   }
+  const hashedPassword = await bcrypt.hash(password, 10);
+  await insertUser(sql, username, hashedPassword);
+  res.redirect("/users/login");
 });
 
 // login
@@ -97,13 +93,10 @@ router.get("/login", checkNotAuthenticated, function (req, res, next) {
 router.post(
   "/login",
   function (req, res, next) {
-    try {
-      if (req.username.length <= 0 || req.password.length <= 0) {
-        throw new Error("login error");
-      }
-    } catch {
-      res.redirect("/users/login");
+    if (req.body.username.length <= 0 || req.body.password.length <= 0) {
+      return res.redirect("/users/login");
     }
+    next();
   },
   passport.authenticate("local", {
     successRedirect: "/",
