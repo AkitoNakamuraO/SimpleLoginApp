@@ -25,7 +25,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-function selectUser(sql) {
+function checkUser(sql, username) {
   return new Promise((resolve) => {
     const connection = mysql.createConnection({
       host: "us-cdbr-east-03.cleardb.com",
@@ -34,7 +34,7 @@ function selectUser(sql) {
       password: "ba9ed138",
       database: "heroku_ca7a263364fcc5a",
     });
-    connection.query(sql, function (err, rows, fields) {
+    connection.query(sql, username, function (err, rows, fields) {
       resolve(rows);
     });
   });
@@ -47,19 +47,14 @@ passport.use(
       passwordField: "password",
     },
     async function (username, password, done) {
-      const sql = "SELECT * FROM users;";
-      const users = await selectUser(sql);
-      users.forEach(async (user) => {
-        if (
-          username === user.name &&
-          (await bcrypt.compare(password, user.password))
-        ) {
-          done(null, username);
-          return true;
-        } else {
-          done(null, false);
+      const sql = "SELECT * FROM users WHERE name = ?";
+      const users = await checkUser(sql, username);
+      for (i = 0; i < users.length; i++) {
+        if (await bcrypt.compare(password, users[i].password)) {
+          return done(null, username);
         }
-      });
+      }
+      return done(null, false);
     }
   )
 );
