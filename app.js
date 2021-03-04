@@ -34,9 +34,11 @@ function checkUser(sql, username) {
       password: "ba9ed138",
       database: "heroku_ca7a263364fcc5a",
     });
+    connection.connect();
     connection.query(sql, username, function (err, rows, fields) {
       resolve(rows);
     });
+    connection.end();
   });
 }
 
