@@ -5,7 +5,6 @@ const bcrypt = require("bcryptjs");
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const { checkNotAuthenticated } = require("../config/auth");
-const e = require("express");
 
 const pool = mysql.createPool({
   host: "us-cdbr-east-03.cleardb.com",
@@ -35,7 +34,7 @@ passport.use(
       const users = await checkUser(sql, username);
       for (i = 0; i < users.length; i++) {
         if (await bcrypt.compare(password, users[i].password)) {
-          return done(null, username);
+          return done(null, { username, password, id: users[i].id });
         }
       }
       return done(null, false);
