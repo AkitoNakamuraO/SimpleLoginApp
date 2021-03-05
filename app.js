@@ -3,14 +3,11 @@ var express = require("express");
 var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
-const mysql = require("mysql");
-const bcrypt = require("bcryptjs");
 const passport = require("passport");
 const session = require("express-session");
 
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
-const { toUnicode } = require("punycode");
 
 var app = express();
 
